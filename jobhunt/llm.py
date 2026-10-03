@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from typing import Any
 
 from .fetch import Job
@@ -228,6 +229,7 @@ def draft(jobs: list[Job], profile: dict, jd_chars: int = 6000,
     profile_blob = json.dumps(profile, ensure_ascii=False)
 
     for j in jobs:
+        time.sleep(0.5)
         try:
             raw = provider.complete(
                 model, DRAFT_SYSTEM,

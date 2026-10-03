@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import base64
 import os
+import time
 from typing import Any
 
 import requests
@@ -138,18 +139,50 @@ class GeminiProvider(Provider):
     def _post(self, model: str, body: dict) -> str:
         keys = self._keys()
         r = None
+        max_retries = 3
         for i, key in enumerate(keys):
-            r = requests.post(
-                f"{self.BASE}/{model}:generateContent",
-                params={"key": key},
-                json=body,
-                timeout=TIMEOUT,
-            )
-            if r.status_code == 429 and i + 1 < len(keys):
-                print("  ! gemini quota hit — retrying with fallback key", flush=True)
-                continue
-            self._active_key = key
-            break
+            for attempt in range(max_retries):
+                try:
+                    r = requests.post(
+                        f"{self.BASE}/{model}:generateContent",
+                        params={"key": key},
+                        json=body,
+                        timeout=TIMEOUT,
+                    )
+                except requests.RequestException as exc:
+                    if attempt + 1 < max_retries:
+                        time.sleep(2 ** attempt)
+                        continue
+                    raise LLMError(f"gemini connection error: {exc}") from exc
+
+                if r.status_code == 200:
+                    self._active_key = key
+                    break
+
+                # 503 Service Unavailable / 500 / 502 / 504: temporary server demand spikes
+                if r.status_code in (500, 502, 503, 504):
+                    if attempt + 1 < max_retries:
+                        wait = 2 * (attempt + 1)
+                        print(f"  ! gemini HTTP {r.status_code} (demand spike) — retrying in {wait}s...", flush=True)
+                        time.sleep(wait)
+                        continue
+
+                # 429: quota / rate limit
+                if r.status_code == 429:
+                    if i + 1 < len(keys):
+                        print("  ! gemini quota hit — retrying with fallback key", flush=True)
+                        break
+                    if attempt + 1 < max_retries:
+                        wait = 3 * (attempt + 1)
+                        print(f"  ! gemini rate limit (429) — retrying in {wait}s...", flush=True)
+                        time.sleep(wait)
+                        continue
+
+                break
+
+            if r is not None and r.status_code == 200:
+                break
+
         if r is None or r.status_code != 200:
             raise LLMError(f"gemini HTTP {getattr(r, 'status_code', '?')}: {(r.text[:300] if r is not None else 'no response')}")
         try:
@@ -184,7 +217,15 @@ class GeminiProvider(Provider):
         }
         if system:
             body["system_instruction"] = {"parts": [{"text": system}]}
-        return self._post(model, body)
+        try:
+            return self._post(model, body)
+        except LLMError as e:
+            groq_key = (os.getenv("GROQ_API_KEY") or "").strip()
+            if groq_key:
+                print(f"  ! gemini failed ({e}) — falling back to Groq", flush=True)
+                groq_model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+                return GroqProvider().complete(groq_model, system, user, max_tokens, json_mode=json_mode)
+            raise
 
     def complete_document(self, model: str, prompt: str, pdf: bytes,
                           max_tokens: int) -> str:
@@ -209,15 +250,22 @@ class OpenAICompatProvider(Provider):
     def complete(self, model: str, system: str, user: str, max_tokens: int,
                  json_mode: bool = False) -> str:
         base = os.getenv("LLM_BASE_URL", self.default_base).rstrip("/")
+        if self.name == "groq":
+            model = os.getenv("GROQ_MODEL") or model
+            if model == "llama-3.3-70b-versatile":
+                model = "openai/gpt-oss-120b"
         messages = ([{"role": "system", "content": system}] if system else []) + \
                    [{"role": "user", "content": user}]
         payload: dict[str, Any] = {"model": model, "messages": messages,
                                    "max_tokens": max_tokens, "temperature": 0.2}
         if json_mode:
             payload["response_format"] = {"type": "json_object"}
+        key = (os.getenv(self.key_env) or os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY") or "").strip()
+        if not key:
+            key = self._env(self.key_env)
         r = requests.post(
             f"{base}/chat/completions",
-            headers={"Authorization": f"Bearer {self._env(self.key_env)}"},
+            headers={"Authorization": f"Bearer {key}"},
             json=payload,
             timeout=TIMEOUT,
         )
@@ -231,6 +279,13 @@ class OpenAICompatProvider(Provider):
 
 class GroqProvider(OpenAICompatProvider):
     name = "groq"
+
+
+class OpenRouterProvider(OpenAICompatProvider):
+    name = "openrouter"
+    required_env = "OPENROUTER_API_KEY"
+    default_base = "https://openrouter.ai/api/v1"
+    key_env = "OPENROUTER_API_KEY"
 
 
 class OllamaProvider(Provider):
@@ -268,6 +323,7 @@ PROVIDERS = {
     "anthropic": AnthropicProvider,
     "gemini": GeminiProvider,
     "groq": GroqProvider,
+    "openrouter": OpenRouterProvider,
     "openai-compatible": OpenAICompatProvider,
     "ollama": OllamaProvider,
 }
@@ -278,6 +334,7 @@ DEFAULT_MODELS = {
     "anthropic": {"screen": "claude-haiku-4-5-20251001", "draft": "claude-sonnet-5"},
     "gemini": {"screen": "gemini-2.0-flash", "draft": "gemini-2.0-flash"},
     "groq": {"screen": "llama-3.3-70b-versatile", "draft": "llama-3.3-70b-versatile"},
+    "openrouter": {"screen": "qwen/qwen3.8-27b:free", "draft": "qwen/qwen3.8-27b:free"},
     "openai-compatible": {"screen": "gpt-4o-mini", "draft": "gpt-4o"},
     "ollama": {"screen": "llama3.1", "draft": "llama3.1"},
 }
