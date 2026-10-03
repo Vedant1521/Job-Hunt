@@ -332,7 +332,7 @@ PROVIDERS = {
 # after setting nothing but a key.
 DEFAULT_MODELS = {
     "anthropic": {"screen": "claude-haiku-4-5-20251001", "draft": "claude-sonnet-5"},
-    "gemini": {"screen": "gemini-2.0-flash", "draft": "gemini-2.0-flash"},
+    "gemini": {"screen": "gemini-3.5-flash-lite", "draft": "gemini-3.5-flash-lite"},
     "groq": {"screen": "llama-3.3-70b-versatile", "draft": "llama-3.3-70b-versatile"},
     "openrouter": {"screen": "qwen/qwen3.8-27b:free", "draft": "qwen/qwen3.8-27b:free"},
     "openai-compatible": {"screen": "gpt-4o-mini", "draft": "gpt-4o"},

@@ -76,7 +76,7 @@ def send_telegram_message(token: str, chat_id: str, text: str,
 
 
 def notify_jobs(jobs: Iterable[Job], token: str | None = None,
-                chat_id: str | None = None) -> int:
+                chat_id: str | None = None, threshold: float = 7.0) -> int:
     """Send individual notifications for each shortlisted job."""
     bot_token = (token or os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
     target_chat = (chat_id or os.getenv("TELEGRAM_CHAT_ID") or "").strip()
@@ -84,8 +84,8 @@ def notify_jobs(jobs: Iterable[Job], token: str | None = None,
     if not bot_token or not target_chat:
         return 0
 
-    sent_count = 0
-    job_list = list(jobs)
+    # Only alert on high-fit roles that clear the score threshold
+    job_list = [j for j in jobs if (j.score or 0.0) >= threshold]
     if not job_list:
         return 0
 

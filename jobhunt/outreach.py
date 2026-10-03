@@ -322,6 +322,11 @@ def run(profile: dict, cfg: dict, *, mock: bool = False, scorer: str = "llm",
             print(f"  ! LLM unavailable ({e}) — keyword fallback", flush=True)
             keyword_screen(jobs, profile)
 
+    # Any job that wasn't scored by screen (due to batch error or missing from LLM response)
+    unscored = [j for j in jobs if j.score is None]
+    if unscored:
+        keyword_screen(unscored, profile)
+
     llm_scored = [
         j for j in jobs
         if j.score is not None and not (j.reason or "").startswith("[keyword stub]")
@@ -335,11 +340,11 @@ def run(profile: dict, cfg: dict, *, mock: bool = False, scorer: str = "llm",
         print(f"  {len(shortlist)} YC jobs >= {threshold}", flush=True)
     else:
         shortlist = sorted(
-            jobs,
+            [j for j in jobs if (j.score or 0) >= threshold],
             key=lambda j: ((j.score or 0) + job_boost(j, profile)),
             reverse=True,
         )[:max_n]
-        print(f"  {len(shortlist)} YC jobs (keyword / intern-AI rank)", flush=True)
+        print(f"  {len(shortlist)} YC jobs (keyword / intern-AI rank >= {threshold})", flush=True)
     if shortlist and scorer != "keyword":
         try:
             provider, model = resolve("draft")

@@ -95,8 +95,8 @@ jobs:
           LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'gemini' }}
           SCREEN_PROVIDER: ${{ vars.SCREEN_PROVIDER }}
           DRAFT_PROVIDER: ${{ vars.DRAFT_PROVIDER }}
-          SCREEN_MODEL: ${{ vars.SCREEN_MODEL || 'gemini-2.0-flash' }}
-          DRAFT_MODEL: ${{ vars.DRAFT_MODEL || 'gemini-2.0-flash' }}
+          SCREEN_MODEL: ${{ vars.SCREEN_MODEL || 'gemini-3.5-flash-lite' }}
+          DRAFT_MODEL: ${{ vars.DRAFT_MODEL || 'gemini-3.5-flash-lite' }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_API_KEY_FALLBACK: ${{ secrets.GEMINI_API_KEY_FALLBACK }}
