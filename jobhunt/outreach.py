@@ -35,6 +35,7 @@ FIT_RE = re.compile(
     r"\b(ai|llm|agent|agentic|rag|developer|devtools|saas|workflow|"
     r"orchestrat|api|cloud|infra|full.?stack|next\.?js|typescript|"
     r"python|gcp|open.?source|document|automation|mlops|observab|"
+    r"crypto|web3|solana|blockchain|"
     r"software|engineer|intern)\b",
     re.I,
 )
@@ -184,7 +185,7 @@ def fetch_companies(session: requests.Session, extra_file: str | Path) -> list[d
             if c.get("isHiring") and not prev.get("isHiring"):
                 pool[slug] = c
 
-    for tag in ("ai", "developer-tools"):
+    for tag in ("ai", "developer-tools", "fintech", "infrastructure", "saas"):
         add_all(_get_json(session, f"{YC_OSS}/tags/{tag}.json"), tag)
     add_all(load_extra(extra_file), "extra")
     return list(pool.values())

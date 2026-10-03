@@ -6,7 +6,7 @@
 #
 # Slugs below were verified against the public ATS APIs on 13 Aug 2026.
 # Chosen for intern / new-grad / junior software, AI, and full-stack fit
-# with Talha's resume (FDE intern, LangChain/LangGraph, Next.js, GCP).
+# with Vedant's resume (FDE intern, LangChain/LangGraph, Next.js, GCP).
 
 companies:
   - {ats: lever,      slug: palantir,     name: Palantir}
@@ -34,3 +34,12 @@ companies:
   - {ats: ashby, slug: e2b, name: E2B}
   - {ats: greenhouse, slug: anthropic, name: Anthropic}
   - {ats: ashby, slug: perplexity, name: Perplexity}
+  - {ats: greenhouse, slug: coinbase, name: Coinbase}
+  - {ats: greenhouse, slug: towerresearchcapital, name: Tower Research Capital}
+  - {ats: greenhouse, slug: rubrik, name: Rubrik}
+  - {ats: greenhouse, slug: togetherai, name: Together AI}
+  - {ats: ashby, slug: anyscale, name: Anyscale}
+  - {ats: greenhouse, slug: inmobi, name: InMobi}
+  - {ats: greenhouse, slug: observeai, name: Observe.ai}
+  - {ats: ashby, slug: cohere, name: Cohere}
+  - {ats: lever, slug: cred, name: CRED}
