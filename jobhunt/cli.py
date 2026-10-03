@@ -14,7 +14,7 @@ from pathlib import Path
 import yaml
 
 from . import digest as digest_mod
-from . import llm, mailer, outreach
+from . import llm, mailer, notifier, outreach
 from .fetch import fetch_all
 from .mock import fetch_all_mock
 from .prefilter import prefilter
@@ -201,6 +201,8 @@ def cmd_run(args) -> int:
 
     store.record(jobs, emailed=sent)
     _write_and_maybe_send_outreach(cfg, targets, ostore, args.send)
+    if not getattr(args, "no_notify", False):
+        notifier.notify_jobs(shortlist + targets)
     csv_path = store.export_csv(cfg.get("tracker_csv", "out/tracker.csv"))
 
     print(f"\nfunnel: {scanned} scanned -> {passed_filters} passed filters "
@@ -259,6 +261,8 @@ def cmd_outreach(args) -> int:
         limit=args.limit,
     )
     _write_and_maybe_send_outreach(cfg, targets, ostore, args.send)
+    if not getattr(args, "no_notify", False):
+        notifier.notify_jobs(targets)
     print(f"  {len(targets)} YC jobs")
     return 0
 
@@ -302,6 +306,8 @@ def main(argv=None) -> int:
     sr.add_argument("--limit", type=int, help="cap jobs sent to the LLM (cost guard)")
     sr.add_argument("--no-outreach", action="store_true",
                     help="skip the YC jobs email")
+    sr.add_argument("--no-notify", action="store_true",
+                    help="skip instant Telegram alerts")
     sr.add_argument("--outreach-limit", type=int, dest="outreach_limit",
                     help="cap YC jobs this run")
     sr.set_defaults(func=cmd_run)
@@ -310,6 +316,7 @@ def main(argv=None) -> int:
     so.add_argument("--mock", action="store_true", help="bundled fixtures, no network")
     so.add_argument("--scorer", choices=["llm", "keyword"], default="llm")
     so.add_argument("--send", action="store_true", help="email the YC jobs digest to MAIL_TO")
+    so.add_argument("--no-notify", action="store_true", help="skip instant Telegram alerts")
     so.add_argument("--limit", type=int, help="cap jobs this run")
     so.set_defaults(func=cmd_outreach)
 
