@@ -1,0 +1,49 @@
+# Extra YC / adjacent companies to probe for jobs.
+# On-site can be anywhere; remote roles still need to be Remote-India.
+# These are merged with the public YC AI + developer-tools lists.
+# Set `batch` (e.g. "Summer 2022") so the job list can be fetched.
+#
+# Add more with:
+#   - name: Acme
+#     slug: acme
+#     batch: Winter 2025
+#     website: https://acme.com
+#     one_liner: One sentence.
+#     tags: [ai]
+
+companies:
+  - name: TrueFoundry
+    website: https://www.truefoundry.com
+    one_liner: AI gateway and platform to deploy, govern, and scale LLM apps.
+    tags: [ai, infrastructure, mlops]
+    hiring: true
+
+  - name: SigNoz
+    slug: signoz
+    batch: Winter 2021
+    website: https://signoz.io
+    one_liner: Open-source observability — logs, metrics, traces, and APM.
+    tags: [observability, developer-tools]
+    hiring: true
+
+  - name: Last9
+    slug: last9
+    batch: Winter 2022
+    website: https://last9.io
+    one_liner: Reliability platform for high-cardinality observability.
+    tags: [observability, developer-tools]
+    hiring: true
+
+  - name: Portkey
+    slug: portkey
+    batch: Winter 2023
+    website: https://portkey.ai
+    one_liner: Production AI gateway — routing, observability, and guardrails for LLM apps.
+    tags: [ai, llm, infrastructure]
+    hiring: true
+
+  - name: Smallest.ai
+    website: https://smallest.ai
+    one_liner: Real-time voice AI models and APIs.
+    tags: [ai, voice]
+    hiring: true

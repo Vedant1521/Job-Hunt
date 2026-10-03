@@ -1,0 +1,88 @@
+# jobhunt configuration. Everything tunable lives here — no editing Python.
+#
+# Tune `filters` first. It is deterministic, free, and it is what keeps the
+# LLM bill small: roughly 2000 raw postings -> 40 candidates before a single
+# token is spent.
+
+filters:
+  # Title regexes, matched case-insensitively against the job title only.
+  # A title must match at least one include AND zero excludes.
+  include_titles:
+    - '\bintern(ship)?\b'
+    - '\bnew\s*grad\b'
+    - '\buniversity\s+grad'
+    - '\bgraduate\s+(software|engineer)'
+    - '\b(software|backend|back-end|fullstack|full-stack|full stack|frontend|front-end|platform|systems|ai|ml|machine learning|applied ai)\b.*\b(engineer|developer|intern)\b'
+    - '\b(engineer|developer|intern)\b.*\b(software|backend|back-end|fullstack|full-stack|full stack|frontend|front-end|platform|ai|ml)\b'
+    - '\bforward\s+deployed\b'
+    - '\bfde\b'
+    - '\bsde\b'
+    - '\bsde\s*-?\s*(i{1,3}|[123]|intern)\b'
+    - 'software development engineer'
+    - 'software engineer'
+    - 'full[\s-]?stack'
+    - 'ai engineer'
+    - 'machine learning engineer'
+    - 'ml engineer'
+    - 'applied ai'
+    - 'member of technical staff'
+    - '\bsite reliability engineer\b'
+    - '\bsre\b'
+
+  # Anything matching these is dropped even if an include matched.
+  exclude_titles:
+    - '\b(staff|principal|distinguished|fellow|architect)\b'
+    - '\bsenior\b'
+    - '\b(director|vp|vice president|head of|chief|cto)\b'
+    - '\b(manager|management)\b'
+    - '\b(sales|account executive|marketing|recruit|support|success)\b'
+    - '\b(ios|android|mobile|game|designer|hardware|asic|rtl)\b'
+    - '\b(data scientist|research scientist|quant researcher)\b'
+
+  # Substrings matched against "<location> <title>", case-insensitive.
+  locations:
+    - bangalore
+    - bengaluru
+    - delhi
+    - new delhi
+    - noida
+    - gurgaon
+    - gurugram
+    - hyderabad
+    - pune
+    - mumbai
+    - chennai
+    - india
+
+  # If true, remote roles pass only when they are Remote-India
+  # (Remote - India, Remote (IN), Bengaluru / Remote, …).
+  # Remote (US), Remote (FR), and bare "Remote" are dropped.
+  allow_remote: true
+
+  # Drop postings older than this. Set to null to disable.
+  max_age_days: 30
+
+# --- LLM stages -------------------------------------------------------------
+screen_batch_size: 8      # jobs per screening call. Higher = cheaper, sloppier.
+screen_jd_chars: 1400     # JD truncation for screening
+draft_jd_chars: 6000      # JD truncation for drafting
+score_threshold: 7.0      # below this, no draft and no digest slot
+max_per_digest: 5         # hard cap on expensive draft calls per run
+
+# --- YC jobs (second daily email) -------------------------------------------
+# Open roles on ycombinator.com, scored against profile.json.
+# On-site can be anywhere; remote must be Remote-India.
+outreach:
+  enabled: true
+  max_per_digest: 5
+  max_companies: 60          # hiring YC companies to pull job lists from
+  extra_file: outreach_extra.yaml
+  seen_file: seen_outreach.json
+  digest_file: out/outreach.html
+
+# --- paths ------------------------------------------------------------------
+companies_file: companies.yaml
+profile_file: profile.json
+seen_file: seen.json
+digest_file: out/digest.html
+tracker_csv: out/tracker.csv

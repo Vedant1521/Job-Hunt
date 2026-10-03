@@ -1,0 +1,37 @@
+# Boards to poll. One entry per company.
+#
+#   ats:   greenhouse | lever | ashby
+#   slug:  the company's board identifier (NOT its domain)
+#   name:  whatever you want to see in the digest
+#
+# Slugs below were verified against the public ATS APIs on 13 Aug 2026.
+# Chosen for intern / new-grad / junior software, AI, and full-stack fit
+# with Talha's resume (FDE intern, LangChain/LangGraph, Next.js, GCP).
+
+companies:
+  - {ats: lever,      slug: palantir,     name: Palantir}
+  - {ats: greenhouse, slug: databricks,   name: Databricks}
+  - {ats: greenhouse, slug: postman,      name: Postman}
+  - {ats: greenhouse, slug: nirmata,      name: Nirmata}
+  - {ats: greenhouse, slug: hackerrank,   name: HackerRank}
+  - {ats: greenhouse, slug: stripe,       name: Stripe}
+  - {ats: greenhouse, slug: cloudflare,   name: Cloudflare}
+  - {ats: ashby,      slug: langchain,    name: LangChain}
+  - {ats: greenhouse, slug: vercel,       name: Vercel}
+  - {ats: ashby,      slug: cursor,       name: Cursor}
+  - {ats: ashby,      slug: openai,       name: OpenAI}
+  - {ats: greenhouse, slug: mongodb,      name: MongoDB}
+  - {ats: greenhouse, slug: gitlab,       name: GitLab}
+  - {ats: greenhouse, slug: scaleai,      name: Scale AI}
+  - {ats: greenhouse, slug: gleanwork,    name: Glean}
+  - {ats: ashby, slug: supabase, name: Supabase}
+  - {ats: ashby, slug: pinecone, name: Pinecone}
+  - {ats: ashby, slug: modal, name: Modal}
+  - {ats: ashby, slug: qdrant.tech, name: Qdrant}
+  - {ats: ashby, slug: linear, name: Linear}
+  - {ats: ashby, slug: helius, name: Helius}
+  - {ats: ashby, slug: braintrust, name: Braintrust}
+  - {ats: ashby, slug: replit, name: Replit}
+  - {ats: ashby, slug: e2b, name: E2B}
+  - {ats: greenhouse, slug: anthropic, name: Anthropic}
+  - {ats: ashby, slug: perplexity, name: Perplexity}
