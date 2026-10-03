@@ -2,15 +2,16 @@
 
 A personal job-search agent. It reads public ATS APIs every morning, throws away
 the ~99% that don't fit you, scores what's left against your resume, drafts an
-application kit for the best few, and emails you a digest.
+application kit for the best few, and delivers them via HTML email and instant
+Telegram alerts.
 
 **It never submits an application.** It finds, filters, ranks and drafts. You
 read the digest, edit the cover note, and press submit yourself.
 
 ```
-2000 postings  →  40 candidates  →  5 in your inbox
-   fetch          regex/location      LLM screen
-                  /freshness gate     + draft
+2000 postings  →  40 candidates  →  Top matches to your phone & inbox
+   fetch          regex/location      LLM screen + draft kits
+                  /freshness gate     (Email digest + instant Telegram bot)
                   (free, no LLM)
 ```
 
@@ -116,11 +117,21 @@ got wrong, and keep it out of version control.
 ### 4. Run it
 
 ```bash
-python -m jobhunt run                    # build the digest
-python -m jobhunt run --send             # ...and email it
+python -m jobhunt run                    # build digest & send instant Telegram alerts
+python -m jobhunt run --send             # ...and email the HTML digest
+python -m jobhunt run --no-notify        # skip Telegram alerts
 python -m jobhunt run --limit 10         # cost guard while tuning
 python -m jobhunt run --no-draft         # screen only, skip the expensive pass
 ```
+
+---
+
+## Key Features
+
+- **Instant Telegram Alerts**: Get mobile notifications with score badges (🟢 $\ge 8.5$, 🟡 $\ge 7.0$), fit rationale, tailored resume highlights, and 1-tap apply links via [`jobhunt/notifier.py`](jobhunt/notifier.py).
+- **Recruiter Cold DM Generator**: Automatically drafts a punchy ~50-word LinkedIn/Twitter outreach note highlighting relevant projects for instant copy-pasting.
+- **YC Startup Scout**: Discovers early-stage engineering and intern roles across AI, DevTools, SaaS, Fintech, and Web3 from Y Combinator batches via [`jobhunt/outreach.py`](jobhunt/outreach.py).
+- **Resilient Multi-Provider Engine**: Built with auto-retry on demand spikes and automatic cross-provider failover (Gemini $\rightarrow$ Groq $\rightarrow$ OpenRouter).
 
 ---
 
@@ -179,10 +190,12 @@ Repository **secrets** to set (Settings → Secrets and variables → Actions):
 
 | Secret | What |
 |---|---|
-| `PROFILE_JSON` | the entire contents of your local `profile.json` |
-| `ANTHROPIC_API_KEY` | (or `GEMINI_API_KEY` / `GROQ_API_KEY`) |
+| `PROFILE_JSON` | contents of your `profile.json` (or uses committed repo fallback) |
+| `GEMINI_API_KEY` | (or `GROQ_API_KEY` / `ANTHROPIC_API_KEY`) |
+| `TELEGRAM_BOT_TOKEN` | Bot token from @BotFather for mobile notifications |
+| `TELEGRAM_CHAT_ID` | Your Telegram personal chat ID (from @getmyid_bot) |
 | `SMTP_USER` / `SMTP_PASS` | Gmail address + **App Password**, not your login |
-| `MAIL_TO` | where the digest goes |
+| `MAIL_TO` | where the email digest goes |
 
 Optional repository **variables**: `LLM_PROVIDER`, `SCREEN_PROVIDER`,
 `DRAFT_PROVIDER`, `SCREEN_MODEL`, `DRAFT_MODEL`.
@@ -201,16 +214,18 @@ normal password stops working once 2FA is on.
 jobhunt/
   fetch.py       Job dataclass, strip_html, 3 pure parsers, fetch_all
   prefilter.py   title/location/freshness gate — no LLM, no cost
-  providers.py   the swappable provider interface + 5 backends
-  llm.py         screen() / draft() / build_profile() / keyword stub
+  providers.py   the swappable provider interface + 6 backends
+  llm.py         screen() / draft() (bullets, cover note, cold DM) / build_profile()
+  outreach.py    daily YC Work-at-a-Startup scanner & scorer
+  notifier.py    instant Telegram bot alerts with fit badges
   digest.py      HTML email (inline CSS only — Gmail strips <style>)
-  mailer.py      SMTP
+  mailer.py      SMTP with safe host/port fallbacks
   store.py       seen.json dedupe + tracker + CSV export
   mock.py        fixtures in each ATS's native JSON shape
   cli.py         argparse: profile / run / applied / stats
 config.yaml      filters, thresholds, paths
 companies.yaml   boards to poll
-tests/           55 tests, no network, no key
+tests/           77 tests, no network, no key
 ```
 
 HTTP is kept out of the parsers on purpose. Each `parse_*(slug, company, body)`
