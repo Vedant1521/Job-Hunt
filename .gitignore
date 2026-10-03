@@ -4,8 +4,13 @@
 # your actual resume and the profile derived from it
 resume.*
 my_resume.pdf
+Vedant-Resume-Final.pdf
+vedant-resume-final.pdf
 profile.json
 !profile.example.json
+
+# personal docs
+jobhunt.md
 # generated output
 out/
 *.html
