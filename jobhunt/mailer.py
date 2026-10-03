@@ -20,8 +20,8 @@ def split_addrs(raw: str | None) -> list[str]:
 
 
 def send(subject: str, html_body: str) -> None:
-    host = os.getenv("SMTP_HOST", "smtp.gmail.com")
-    port = int(os.getenv("SMTP_PORT", "587"))
+    host = os.getenv("SMTP_HOST") or "smtp.gmail.com"
+    port = int(os.getenv("SMTP_PORT") or "587")
     user = os.environ["SMTP_USER"]
     password = os.environ["SMTP_PASS"]
     to_addrs = split_addrs(os.getenv("MAIL_TO", user)) or [user]

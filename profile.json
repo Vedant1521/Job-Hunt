@@ -1,0 +1,44 @@
+{
+  "name": "Vedant Gupta",
+  "current_title": "AI Full Stack Developer Intern",
+  "years_experience": 0,
+  "core_skills": [
+    "LangGraph",
+    "LangChain",
+    "Multi-Agent Systems",
+    "RAG (Retrieval-Augmented Generation)",
+    "Node.js",
+    "Express.js",
+    "TypeScript",
+    "Python",
+    "React.js",
+    "Redis",
+    "Qdrant",
+    "Docker",
+    "PostgreSQL",
+    "MongoDB",
+    "C/C++",
+    "Solana Web3.js"
+  ],
+  "domains": [
+    "GenAI & Agent Orchestration",
+    "Full Stack Web Development",
+    "Microservices & API Gateways",
+    "Developer Tools & Open Source",
+    "Web3 & Micropayment Systems"
+  ],
+  "notable_projects": [
+    "Botlock: Decentralized AI agent paywall verifying on-chain USDC via Solana RPC in 400ms at <$0.001/tx with <0.1% false-positive rate",
+    "NexusAI: Microservices-based multi-agent AI platform using LangGraph with sub-200ms intent routing and zero stale-state reads",
+    "FETCHIT: Open-source media downloader CLI with 150+ GitHub stars and 3,000+ npm downloads, reducing playlist discovery latency by 85%"
+  ],
+  "education": "B.Tech in Mathematics & Computing Engineering, Delhi Technological University (2023–2027)",
+  "target_titles": [
+    "AI/ML Engineer",
+    "Software Development Engineer (SDE)",
+    "Full Stack Engineer",
+    "Backend Engineer",
+    "Generative AI Engineer"
+  ],
+  "seniority": "intern"
+}

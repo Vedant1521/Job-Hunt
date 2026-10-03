@@ -1,13 +1,11 @@
 # secrets
 .env
 
-# your actual resume and the profile derived from it
+# resume.* files
 resume.*
 my_resume.pdf
 Vedant-Resume-Final.pdf
 vedant-resume-final.pdf
-profile.json
-!profile.example.json
 
 # personal docs
 jobhunt.md

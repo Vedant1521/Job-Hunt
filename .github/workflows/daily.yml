@@ -53,33 +53,56 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Write profile.json
-        # profile.json is gitignored (it is derived from your resume), so CI
-        # gets it from a secret. Create it locally with
-        #   python -m jobhunt profile --resume resume.pdf
-        # then paste the file contents into the PROFILE_JSON repo secret.
+        # profile.json is derived from your resume. If PROFILE_JSON secret is set,
+        # it is used (auto-stripping any markdown fences). Otherwise falls back
+        # to the repository profile.json.
         env:
-          PROFILE_JSON: ${{ secrets.PROFILE_JSON }}
+          PROFILE_RAW: ${{ secrets.PROFILE_JSON }}
         run: |
-          if [ -z "$PROFILE_JSON" ]; then
-            echo "::error::PROFILE_JSON secret is empty — see the README"
-            exit 1
-          fi
-          printf '%s' "$PROFILE_JSON" > profile.json
-          python -c "import json;json.load(open('profile.json'));print('profile.json parsed OK')"
+          python - << 'EOF'
+          import os, json, sys
+
+          raw = os.environ.get("PROFILE_RAW", "").strip()
+
+          if raw:
+              # Strip accidental markdown code blocks (e.g. ```json ... ```)
+              if raw.startswith("```"):
+                  lines = raw.splitlines()
+                  if lines and lines[0].startswith("```"):
+                      lines = lines[1:]
+                  if lines and lines[-1].startswith("```"):
+                      lines = lines[:-1]
+                  raw = "\n".join(lines).strip()
+              try:
+                  data = json.loads(raw)
+                  with open("profile.json", "w", encoding="utf-8") as f:
+                      json.dump(data, f, indent=2)
+                  print("profile.json updated from secret and parsed OK")
+                  sys.exit(0)
+              except Exception as e:
+                  print(f"::warning::Could not parse PROFILE_JSON secret ({e})")
+
+          if os.path.exists("profile.json"):
+              print("Using profile.json from repository")
+              sys.exit(0)
+
+          print("::error::PROFILE_JSON secret is empty and profile.json not found in repository", file=sys.stderr)
+          sys.exit(1)
+          EOF
 
       - name: Run the pipeline
         env:
           LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'gemini' }}
           SCREEN_PROVIDER: ${{ vars.SCREEN_PROVIDER }}
           DRAFT_PROVIDER: ${{ vars.DRAFT_PROVIDER }}
-          SCREEN_MODEL: ${{ vars.SCREEN_MODEL || 'gemini-2.5-flash-lite' }}
-          DRAFT_MODEL: ${{ vars.DRAFT_MODEL || 'gemini-2.5-flash-lite' }}
+          SCREEN_MODEL: ${{ vars.SCREEN_MODEL || 'gemini-2.0-flash' }}
+          DRAFT_MODEL: ${{ vars.DRAFT_MODEL || 'gemini-2.0-flash' }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_API_KEY_FALLBACK: ${{ secrets.GEMINI_API_KEY_FALLBACK }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST || 'smtp.gmail.com' }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT || '587' }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           MAIL_TO: ${{ secrets.MAIL_TO }}
