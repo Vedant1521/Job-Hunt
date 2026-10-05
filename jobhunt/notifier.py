@@ -90,6 +90,7 @@ def notify_jobs(jobs: Iterable[Job], token: str | None = None,
         return 0
 
     print(f"\n[telegram] sending alerts for {len(job_list)} job(s)...")
+    sent_count = 0
     for j in job_list:
         msg = format_job_message(j)
         if send_telegram_message(bot_token, target_chat, msg):

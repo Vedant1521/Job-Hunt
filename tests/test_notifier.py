@@ -72,3 +72,21 @@ def test_notify_jobs_skips_when_no_credentials(monkeypatch):
     )
     sent = notify_jobs([job])
     assert sent == 0
+
+
+def test_notify_jobs_success():
+    job = Job(
+        job_id="greenhouse:stripe:101",
+        ats="greenhouse",
+        company="Stripe",
+        title="Software Engineering Intern",
+        location="Bengaluru",
+        url="https://example.com",
+        description="x",
+        score=8.5,
+    )
+    with patch("jobhunt.notifier.send_telegram_message", return_value=True) as mock_send:
+        sent = notify_jobs([job], token="fake_token", chat_id="12345", threshold=7.0)
+        assert sent == 1
+        mock_send.assert_called_once()
+
