@@ -32,7 +32,7 @@
     "NexusAI: Microservices-based multi-agent AI platform using LangGraph with sub-200ms intent routing and zero stale-state reads",
     "FETCHIT: Open-source media downloader CLI with 150+ GitHub stars and 3,000+ npm downloads, reducing playlist discovery latency by 85%"
   ],
-  "education": "B.Tech in Mathematics & Computing Engineering, Delhi Technological University (2023–2027)",
+  "education": "B.Tech in Mathematics & Computing Engineering, Delhi Technological University (2023-2027)",
   "target_titles": [
     "AI/ML Engineer",
     "Software Development Engineer (SDE)",

@@ -73,13 +73,22 @@ jobs:
                       lines = lines[:-1]
                   raw = "\n".join(lines).strip()
               try:
-                  data = json.loads(raw)
+                  data = json.loads(raw, strict=False)
                   with open("profile.json", "w", encoding="utf-8") as f:
                       json.dump(data, f, indent=2)
                   print("profile.json updated from secret and parsed OK")
                   sys.exit(0)
               except Exception as e:
-                  print(f"::warning::Could not parse PROFILE_JSON secret ({e})")
+                  try:
+                      import re
+                      cleaned = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', raw)
+                      data = json.loads(cleaned, strict=False)
+                      with open("profile.json", "w", encoding="utf-8") as f:
+                          json.dump(data, f, indent=2)
+                      print("profile.json parsed OK after sanitizing control characters")
+                      sys.exit(0)
+                  except Exception as e2:
+                      print(f"::warning::Could not parse PROFILE_JSON secret ({e2})")
 
           if os.path.exists("profile.json"):
               print("Using profile.json from repository")
